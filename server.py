@@ -40,11 +40,6 @@ class Reviews(db.Model):
             'review': self.review
         }
 
-# jsonify return and create() as well?
-# def get():
-#     restaurants = Reviews.query.all()
-#     return [review.to_dict() for review in restaurants]
-
 # tries to add row to database
 def add_restaurant(name, id, lat, long, rev):
     new_place = Reviews(
@@ -67,7 +62,7 @@ def add_restaurant(name, id, lat, long, rev):
 def get_long_lat(address): # limit api calls to maps api
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"""Generate the longitude and latitude coordinates of the address {address} in the exact json format structure with no additional markdown formatting, explanations, code blocks, and None if not able to be found, follow this exact structure:
+        contents=f"""Generate the longitude and latitude coordinates of the address or 'latitude,longitude' {address} in the exact json format structure with no additional markdown formatting, explanations, code blocks, and None if not able to be found, follow this exact structure:
         {{
             "latitude": "latitude number here...",
             "longitude": "longitude number here..."
@@ -75,6 +70,7 @@ def get_long_lat(address): # limit api calls to maps api
         """
     )
     process = response.text
+    print(process)
 
     # clean up response so it can be read as json
     if "```json" in process:
@@ -135,25 +131,12 @@ def get_place_rating(name, place_id, lat, long):
     )
     return add_restaurant(name, place_id, lat, long, response.text)
 
-# somehow get location i mean use post
-# @app.route('/get_reviews', methods=['GET', 'POST', 'OPTIONS'])
-# @cross_origin()
-# def test():
-#     data = request.get_json()
-#     print(data['data'])
-#     response = jsonify([{
-#         'message': 'tomato'
-#     },{ 
-#         'message': 'potato'
-#     }])
-#     print('loading')
-#     return response 
-
 @app.route('/get_reviews', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin()
 def get_all_ratings():
     address = request.get_json()['restaurant']
-
+    print('hi')
+    print(address)
     lat, long = get_long_lat(address)
 
     if not lat or not long:
@@ -166,25 +149,8 @@ def get_all_ratings():
         ratings.append(get_place_rating(r['name'], r['place_id'], r['latitude'], r['longitude']))
     return ratings
 
-
-# location = get_long_lat("1125 Colonel by Drive, Ottawa")
-# location = "37.7749,-122.4194"
-# if location:
-#     places = get_nearby_places(location)
-#     for place in places:
-#         get_place_rating(place['name'], place['place_id'], place['lat'], place['long'])
-# get_place_rating('Zuni Café', 'ChIJO7u9q5-AhYARiSSXyWv9eJ8', 37.7736, -122.421608)
-
-# a = [{'name': 'Hotel Omni', 'place_id': 'ChIJnUe-PACBhYARr5OdOFgxzd0', 'latitude': 37.7749295, 'longitude': -122.4194155}, {'name': 'Sf-mandarin', 'place_id': 'ChIJneLGDgCBhYARQiqKeK1Th7Y', 'latitude': 37.7749295, 'longitude': -122.4194155}, {'name': 'Mexirean Grill & Resto Br', 'place_id': 'ChIJL4oMO26BhYARjNi6g_nI3Ao', 'latitude': 37.7749295, 'longitude': -122.4194155}, {'name': 'Tony’s pizza', 'place_id': 'ChIJ4biyLACBhYARZgH-IwDC9NA', 'latitude': 37.7749295, 'longitude': -122.4194155}]
-
-
 with app.app_context():
     db.create_all()
-    # create()
-    # print(get())
-    # print(get_place_rating("n", "123", 123, 456))
-    # for res in a:
-        # print(get_place_rating(res['name'], res['place_id'], res['latitude'], res['longitude']))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -125,7 +125,7 @@ def get_place_rating(name, place_id, lat, long):
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=f"""Summarize in strictly under 250 characters the cuisine and ratings of the restaurant {name} at {lat},{long}.
-        Do not include the longitude and latitude, or city.
+        Do not include the longitude and latitude, or city, or restaurant name.
         If you cannot find the restaurant or any reviews, only output "No reviews found" and nothing else: no explanation or reason
         """
     )

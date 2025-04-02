@@ -8,6 +8,6 @@ This project was built with:
 * MySQL
 
 ## How it works
-![GIFS](/gifs/search.mov)
+![GIFS](/gifs/findeat.gif)
 
 Type any address into the search bar and after a few seconds, there will be a list of any nearby restaurants, as well as a summarized review if found
